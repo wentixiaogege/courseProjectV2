@@ -40,6 +40,7 @@ import edu.itu.course.dropwizard.jdbi.dao.DeviceDAO;
 import edu.itu.course.dropwizard.jdbi.dao.DeviceDataDAO;
 import edu.itu.course.dropwizard.resources.DeviceResourceImpl;
 import edu.itu.course.dropwizard.websoket.BroadcastServlet;
+import edu.itu.course.dropwizard.websoket.NotificationServelet;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -60,7 +61,8 @@ private static Logger logger = LoggerFactory.getLogger(MyApplication.class);
 		 * @throws Exception the exception
 		 */
 		public static void main(String[] args) throws Exception {
-        new MyApplication().run("server", "config.yml");
+//        new MyApplication().run("server", "config.yml");
+			new MyApplication().run(args);
     }
 
     /* (non Javadoc) 
@@ -139,7 +141,7 @@ private static Logger logger = LoggerFactory.getLogger(MyApplication.class);
         
         DeviceResourceImpl deviceResourceImpl =  new DeviceResourceImpl(dao,dataDAO);
         
-//        Notification notification = new Notification();
+//      Notification notification = new Notification();
         //add health check
         
         // Add object to ServletContext for accessing from Sundial Jobs
@@ -149,14 +151,21 @@ private static Logger logger = LoggerFactory.getLogger(MyApplication.class);
         
         environment.healthChecks().register("DatabaseHealthCheck", healthCheck);
         
+        //here register the deviceresource as deviceResourceImpl is the implementation
         environment.jersey().register(deviceResourceImpl);
      
+        //here register the notification resource
 //        environment.jersey().register(notification);
         environment.jersey().register(new Notification(environment.getObjectMapper()));
 
-        environment.getApplicationContext().getServletHandler().addServletWithMapping(
+        //not use any more
+       /* environment.getApplicationContext().getServletHandler().addServletWithMapping(
            BroadcastServlet.class, "/frequency/*"
-        );
+        );*/
+        
+        environment.getApplicationContext().getServletHandler().addServletWithMapping(
+                NotificationServelet.class, "/subscribe/*"
+             );
         
         //add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread() {
